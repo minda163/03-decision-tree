@@ -34,7 +34,7 @@ def calcShannonEnt(dataSet):
     return shannonEnt
 #The higher the entropy,the more mixed up the data is.
 dataSet, labels=createDataSet() 
-print(calcShannonEnt(dataSet))
+print('calcShannonEnt:',calcShannonEnt(dataSet))
 '''
 Dataset splitting on a given feature
 参数：axis代表按哪个特征分类，value代表分出来显示的是axis中的那种特点
@@ -51,7 +51,7 @@ def splitDataSet(dataSet, axis, value):
             retDataSet.append(reducedFeatVec)
     return retDataSet
     
-print(splitDataSet(dataSet, 0, 1))
+print('splitDataSet:',splitDataSet(dataSet, 0, 1))
 
 #Choosing the best feature to split on
 def chooseBestFeatureToSplit(dataSet):
@@ -77,7 +77,7 @@ def chooseBestFeatureToSplit(dataSet):
             bestInfoGain = infoGain         #if better than current best, set to best
             bestFeature = i
     return bestFeature  #返回按哪个特征分类   #returns an integer
-print(chooseBestFeatureToSplit(dataSet))
+print('chooseBestFeatureToSplit:',chooseBestFeatureToSplit(dataSet))
 
 #majority vote
 def majorityCnt(classList):
@@ -89,11 +89,15 @@ def majorityCnt(classList):
     # classCount.items()被排序的字典类型的view。
     #key:制订排序方式。operator模块提供的itemgetter函数用于获取对象的某维的数据
     # resverse：True 降序（descending），False 升序（ascending）
-    return sortedClassCount[0][0]
+    return sortedClassCount[0][0]#return the class that occurs with the greatest frequency.
 
+# tree-building code
 def createTree(dataSet,labels):
+    #labels:The list of labels contains a label for each of the features in the dataset.
     classList = [example[-1] for example in dataSet]
+    #ClassList:a list of all the class labels in our dataset.
     if classList.count(classList[0]) == len(classList): 
+    #数一下classList里面有几个（classList[0]),如果和classList一样，则此分类全部相同
         return classList[0]#stop splitting when all of the classes are equal
     if len(dataSet[0]) == 1: #stop splitting when there are no more features in dataSet
         return majorityCnt(classList)
@@ -107,4 +111,4 @@ def createTree(dataSet,labels):
         subLabels = labels[:]       #copy all of labels, so trees don't mess up existing labels
         myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value),subLabels)
     return myTree
-print(createTree(dataSet,labels))
+print('createTree:',createTree(dataSet,labels))
