@@ -112,3 +112,63 @@ def createTree(dataSet,labels):
         myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value),subLabels)
     return myTree
 print('createTree:',createTree(dataSet,labels))
+
+
+def classify(inputTree,featLabels,testVec):
+    firstStr = list(inputTree.keys())[0]
+    secondDict = inputTree[firstStr]
+    featIndex = featLabels.index(firstStr)
+    key = testVec[featIndex]
+    valueOfFeat = secondDict[key]
+    if isinstance(valueOfFeat, dict): 
+#作用：来判断一个对象是否是一个已知的类型。 
+#其第一个参数（object）为对象，第二个参数（type）为类型名(int...)或类型名的一个列表([int,list,float]是一个列表)。
+#其返回值为布尔型（True or flase）。
+#若对象的类型与参数二的类型相同则返回True。若参数二为一个元组，则若对象类型与元组中类型名之一相同即返回True。
+        classLabel = classify(valueOfFeat, featLabels, testVec)
+    else: classLabel = valueOfFeat
+    return classLabel
+    
+myTree = {'no surfacing': {0: 'no', 1: {'flippers': {0: 'no', 1: 'yes'}}}}
+dataSet, labels=createDataSet() 
+print('classify:',classify(myTree,labels,[1,0]))
+
+#Methods for persisting the decision tree with pickle
+def storeTree(inputTree,filename):
+    import pickle
+    fw = open(filename,'wb')
+    pickle.dump(inputTree,fw)
+    fw.close()
+    
+def grabTree(filename):
+    import pickle
+    fr = open(filename,'rb')
+    return pickle.load(fr)
+'''python的pickle模块实现了基本的数据序列和反序列化。
+通过pickle模块的序列化操作我们能够将程序中运行的对象信息保存到文件中去，永久存储；
+通过pickle模块的反序列化操作，我们能够从文件中创建上一次程序保存的对象。　　
+基本接口：pickle.dump(obj, file, [,protocol])
+注解：将对象obj保存到文件file中去。
+　　　protocol为序列化使用的协议版本，
+   0：ASCII协议，所序列化的对象使用可打印的ASCII码表示；
+   1：老式的二进制协议；
+   2：2.3版本引入的新二进制协议，较以前的更高效。
+   其中协议0和1兼容老版本的python。protocol默认值为0。
+　　　file：对象保存到的类文件对象。
+   file必须有write()接口，file可以是一个以'w'方式打开的文件
+   或者一个StringIO对象或者其他任何实现write()接口的对象。
+   如果protocol>=1，文件对象需要是二进制模式打开的。
+　　pickle.load(file)
+　　注解：从file中读取一个字符串，并将它重构为原来的python对象。
+　　file:类文件对象，有read()和readline()接口。'''
+    
+storeTree(myTree,'classifierStorage.txt')
+print(grabTree('classifierStorage.txt'))
+
+fr = open('lenses.txt')
+lenses = [inst.strip().split('\t') for inst in fr.readlines()]
+lensesLabels = ['age','prescript','astigmatic','tearRate']
+lensesTree = createTree(lenses,lensesLabels)
+print(lensesTree)
+import treePlotter
+treePlotter.createPlot(lensesTree)
